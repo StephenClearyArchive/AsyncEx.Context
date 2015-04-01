@@ -113,7 +113,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public void TaskSchedulerCurrent_FromAsyncContext_IsAsyncContextTaskScheduler()
+        public void TaskSchedulerCurrent_FromAsyncContext_IsThreadPoolTaskScheduler()
         {
             TaskScheduler observedScheduler = null;
             var context = new AsyncContext();
@@ -124,14 +124,14 @@ namespace UnitTests
 
             context.Execute();
 
-            Assert.Same(context.Scheduler, observedScheduler);
+            Assert.Same(TaskScheduler.Default, observedScheduler);
         }
 
         [Fact]
         public void TaskScheduler_MaximumConcurrency_IsOne()
         {
-            var scheduler = AsyncContext.Run(() => TaskScheduler.Current);
-            Assert.Equal(1, scheduler.MaximumConcurrencyLevel);
+            var context = new AsyncContext();
+            Assert.Equal(1, context.Scheduler.MaximumConcurrencyLevel);
         }
 
         [Fact]

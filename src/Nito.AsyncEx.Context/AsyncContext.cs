@@ -50,7 +50,7 @@ namespace Nito.AsyncEx
             _queue = new TaskQueue();
             _synchronizationContext = new AsyncContextSynchronizationContext(this);
             _taskScheduler = new AsyncContextTaskScheduler(this);
-            _taskFactory = new TaskFactory(_taskScheduler);
+            _taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler, TaskContinuationOptions.HideScheduler, _taskScheduler);
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace Nito.AsyncEx
         }
 
         /// <summary>
-        /// Gets the <see cref="TaskFactory"/> for this <see cref="AsyncContext"/>. Be careful with async delegates; you may need to call <see cref="M:System.Threading.SynchronizationContext.OperationStarted"/> and <see cref="M:System.Threading.SynchronizationContext.OperationCompleted"/> to prevent early termination of this <see cref="AsyncContext"/>.
+        /// Gets the <see cref="TaskFactory"/> for this <see cref="AsyncContext"/>. Note that this factory has the <see cref="TaskCreationOptions.HideScheduler"/> option set. Be careful with async delegates; you may need to call <see cref="M:System.Threading.SynchronizationContext.OperationStarted"/> and <see cref="M:System.Threading.SynchronizationContext.OperationCompleted"/> to prevent early termination of this <see cref="AsyncContext"/>.
         /// </summary>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public TaskFactory Factory
