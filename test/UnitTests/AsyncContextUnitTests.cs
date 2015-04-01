@@ -5,23 +5,22 @@ using System.Linq;
 using System.Threading;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+using Nito.AsyncEx.Testing;
 
 namespace UnitTests
 {
-    [ExcludeFromCodeCoverage]
-    [TestClass]
     public class AsyncContextUnitTests
     {
-        [TestMethod]
+        [Fact]
         public void AsyncContext_StaysOnSameThread()
         {
             var testThread = Thread.CurrentThread.ManagedThreadId;
             var contextThread = AsyncContext.Run(() => Thread.CurrentThread.ManagedThreadId);
-            Assert.AreEqual(testThread, contextThread);
+            Assert.Equal(testThread, contextThread);
         }
 
-        [TestMethod]
+        [Fact]
         public void Run_AsyncVoid_BlocksUntilCompletion()
         {
             bool resumed = false;
@@ -30,10 +29,10 @@ namespace UnitTests
                 await Task.Yield();
                 resumed = true;
             }));
-            Assert.IsTrue(resumed);
+            Assert.True(resumed);
         }
 
-        [TestMethod]
+        [Fact]
         public void Run_FuncThatCallsAsyncVoid_BlocksUntilCompletion()
         {
             bool resumed = false;
@@ -47,11 +46,11 @@ namespace UnitTests
                 asyncVoid();
                 return 13;
             }));
-            Assert.IsTrue(resumed);
-            Assert.AreEqual(13, result);
+            Assert.True(resumed);
+            Assert.Equal(13, result);
         }
 
-        [TestMethod]
+        [Fact]
         public void Run_AsyncTask_BlocksUntilCompletion()
         {
             bool resumed = false;
@@ -60,10 +59,10 @@ namespace UnitTests
                 await Task.Yield();
                 resumed = true;
             });
-            Assert.IsTrue(resumed);
+            Assert.True(resumed);
         }
 
-        [TestMethod]
+        [Fact]
         public void Run_AsyncTaskWithResult_BlocksUntilCompletion()
         {
             bool resumed = false;
@@ -73,17 +72,17 @@ namespace UnitTests
                 resumed = true;
                 return 17;
             });
-            Assert.IsTrue(resumed);
-            Assert.AreEqual(17, result);
+            Assert.True(resumed);
+            Assert.Equal(17, result);
         }
 
-        [TestMethod]
+        [Fact]
         public void Current_WithoutAsyncContext_IsNull()
         {
-            Assert.IsNull(AsyncContext.Current);
+            Assert.Null(AsyncContext.Current);
         }
 
-        [TestMethod]
+        [Fact]
         public void Current_FromAsyncContext_IsAsyncContext()
         {
             AsyncContext observedContext = null;
@@ -95,10 +94,10 @@ namespace UnitTests
 
             context.Execute();
 
-            Assert.AreSame(context, observedContext);
+            Assert.Same(context, observedContext);
         }
 
-        [TestMethod]
+        [Fact]
         public void SynchronizationContextCurrent_FromAsyncContext_IsAsyncContextSynchronizationContext()
         {
             SynchronizationContext observedContext = null;
@@ -110,10 +109,10 @@ namespace UnitTests
 
             context.Execute();
 
-            Assert.AreSame(context.SynchronizationContext, observedContext);
+            Assert.Same(context.SynchronizationContext, observedContext);
         }
 
-        [TestMethod]
+        [Fact]
         public void TaskSchedulerCurrent_FromAsyncContext_IsAsyncContextTaskScheduler()
         {
             TaskScheduler observedScheduler = null;
@@ -125,31 +124,31 @@ namespace UnitTests
 
             context.Execute();
 
-            Assert.AreSame(context.Scheduler, observedScheduler);
+            Assert.Same(context.Scheduler, observedScheduler);
         }
 
-        [TestMethod]
+        [Fact]
         public void TaskScheduler_MaximumConcurrency_IsOne()
         {
             var scheduler = AsyncContext.Run(() => TaskScheduler.Current);
-            Assert.AreEqual(1, scheduler.MaximumConcurrencyLevel);
+            Assert.Equal(1, scheduler.MaximumConcurrencyLevel);
         }
 
-        [TestMethod]
+        [Fact]
         public void Run_PropagatesException()
         {
             Action test = () => AsyncContext.Run(() => { throw new NotImplementedException(); });
-            AssertEx.ThrowsException<NotImplementedException>(test, allowDerivedTypes: false);
+            AsyncAssert.Throws<NotImplementedException>(test, allowDerivedTypes: false);
         }
 
-        [TestMethod]
+        [Fact]
         public void Run_Async_PropagatesException()
         {
             Action test = () => AsyncContext.Run(async () => { await Task.Yield(); throw new NotImplementedException(); });
-            AssertEx.ThrowsException<NotImplementedException>(test, allowDerivedTypes: false);
+            AsyncAssert.Throws<NotImplementedException>(test, allowDerivedTypes: false);
         }
 
-        [TestMethod]
+        [Fact]
         public void SynchronizationContextPost_PropagatesException()
         {
             Action test = () => AsyncContext.Run(async () =>
@@ -160,10 +159,10 @@ namespace UnitTests
                 }, null);
                 await Task.Yield();
             });
-            AssertEx.ThrowsException<NotImplementedException>(test, allowDerivedTypes: false);
+            AsyncAssert.Throws<NotImplementedException>(test, allowDerivedTypes: false);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task SynchronizationContext_Send_ExecutesSynchronously()
         {
             using (var thread = new AsyncContextThread())
@@ -171,11 +170,11 @@ namespace UnitTests
                 var synchronizationContext = await thread.Factory.Run(() => SynchronizationContext.Current);
                 int value = 0;
                 synchronizationContext.Send(_ => { value = 13; }, null);
-                Assert.AreEqual(13, value);
+                Assert.Equal(13, value);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public async Task SynchronizationContext_Send_ExecutesInlineIfNecessary()
         {
             using (var thread = new AsyncContextThread())
@@ -184,13 +183,13 @@ namespace UnitTests
                 await thread.Factory.Run(() =>
                 {
                     SynchronizationContext.Current.Send(_ => { value = 13; }, null);
-                    Assert.AreEqual(13, value);
+                    Assert.Equal(13, value);
                 });
-                Assert.AreEqual(13, value);
+                Assert.Equal(13, value);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void Task_AfterExecute_NeverRuns()
         {
             int value = 0;
@@ -200,25 +199,25 @@ namespace UnitTests
 
             var task = context.Factory.Run(() => { value = 2; });
 
-            task.ContinueWith(_ => { Assert.Fail(); });
-            Assert.AreEqual(1, value);
+            task.ContinueWith(_ => { throw new Exception("Should not run"); });
+            Assert.Equal(1, value);
         }
 
-        [TestMethod]
+        [Fact]
         public void SynchronizationContext_IsEqualToCopyOfItself()
         {
             var synchronizationContext1 = AsyncContext.Run(() => SynchronizationContext.Current);
             var synchronizationContext2 = synchronizationContext1.CreateCopy();
-            Assert.AreEqual(synchronizationContext1.GetHashCode(), synchronizationContext2.GetHashCode());
-            Assert.IsTrue(synchronizationContext1.Equals(synchronizationContext2));
-            Assert.IsFalse(synchronizationContext1.Equals(new SynchronizationContext()));
+            Assert.Equal(synchronizationContext1.GetHashCode(), synchronizationContext2.GetHashCode());
+            Assert.True(synchronizationContext1.Equals(synchronizationContext2));
+            Assert.False(synchronizationContext1.Equals(new SynchronizationContext()));
         }
 
-        [TestMethod]
+        [Fact]
         public void Id_IsEqualToTaskSchedulerId()
         {
             var context = new AsyncContext();
-            Assert.AreEqual(context.Scheduler.Id, context.Id);
+            Assert.Equal(context.Scheduler.Id, context.Id);
         }
     }
 }

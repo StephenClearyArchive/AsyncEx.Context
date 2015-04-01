@@ -4,25 +4,23 @@ using Nito.AsyncEx;
 using System.Linq;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace UnitTests
 {
-    [ExcludeFromCodeCoverage]
-    [TestClass]
     public class AsyncContextThreadUnitTests
     {
-        [TestMethod]
+        [Fact]
         public async Task AsyncContextThread_IsAnIndependentThread()
         {
             var testThread = Thread.CurrentThread.ManagedThreadId;
             var thread = new AsyncContextThread();
             var contextThread = await thread.Factory.Run(() => Thread.CurrentThread.ManagedThreadId);
-            Assert.AreNotEqual(testThread, contextThread);
+            Assert.NotEqual(testThread, contextThread);
             await thread.JoinAsync();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task AsyncDelegate_ResumesOnSameThread()
         {
             var thread = new AsyncContextThread();
@@ -33,11 +31,11 @@ namespace UnitTests
                 await Task.Yield();
                 resumeThread = Thread.CurrentThread.ManagedThreadId;
             });
-            Assert.AreEqual(contextThread, resumeThread);
+            Assert.Equal(contextThread, resumeThread);
             await thread.JoinAsync();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task Join_StopsTask()
         {
             var context = new AsyncContextThread();
@@ -45,13 +43,13 @@ namespace UnitTests
             await context.JoinAsync();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task Context_IsCorrectAsyncContext()
         {
             using (var thread = new AsyncContextThread())
             {
                 var observedContext = await thread.Factory.Run(() => AsyncContext.Current);
-                Assert.AreSame(observedContext, thread.Context);
+                Assert.Same(observedContext, thread.Context);
             }
         }
     }
