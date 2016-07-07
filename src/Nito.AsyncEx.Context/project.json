@@ -1,9 +1,9 @@
 {
-  "version": "1.0.0-delta-1",
+  "version": "1.0.0-delta-2",
   "authors": [ "Stephen Cleary" ],
   "description": "A single-threaded async-compatible context.",
   "dependencies": {
-    "Nito.AsyncEx.Tasks": "1.0.0-delta-1"
+    "Nito.AsyncEx.Tasks": "1.0.0-delta-2"
   },
   "buildOptions": {
     "warningsAsErrors": true
@@ -14,6 +14,13 @@
         "System.Collections.Concurrent": "4.0.12",
         "System.Diagnostics.Debug": "4.0.11",
         "System.Threading": "4.0.11"
+      }
+    },
+    "net46": {
+      "frameworkAssemblies": {
+        "System.Collections.Concurrent": "",
+        "System.Diagnostics.Debug": "",
+        "System.Threading": ""
       }
     }
   }
