@@ -1,13 +1,22 @@
 {
-  "version": "1.0.0-delta-3",
+  "version": "1.0.0-delta-4",
   "authors": [ "Stephen Cleary" ],
   "description": "A single-threaded async-compatible context.",
   "dependencies": {
-    "Nito.AsyncEx.Tasks": "1.0.0-delta-2"
+    "Nito.AsyncEx.Tasks": "1.0.0-delta-5"
   },
   "buildOptions": {
     "warningsAsErrors": true,
     "xmlDoc": true
+  },
+  "packOptions": {
+    "tags": [ "task", "async", "synchronizationcontext" ],
+    "projectUrl": "https://github.com/StephenCleary/AsyncEx.Context",
+    "licenseUrl": "https://raw.githubusercontent.com/StephenCleary/AsyncEx.Context/master/LICENSE",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/StephenCleary/AsyncEx.Context.git"
+    }
   },
   "frameworks": {
     "netstandard1.3": {
@@ -19,9 +28,9 @@
     },
     "net46": {
       "frameworkAssemblies": {
-        "System.Collections.Concurrent": "",
-        "System.Diagnostics.Debug": "",
-        "System.Threading": ""
+        "System.Collections.Concurrent": { "type": "build" },
+        "System.Diagnostics.Debug": { "type": "build" },
+        "System.Threading": { "type": "build" }
       }
     }
   }
