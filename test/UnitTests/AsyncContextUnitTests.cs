@@ -199,7 +199,7 @@ namespace UnitTests
 
             var task = context.Factory.Run(() => { value = 2; });
 
-            task.ContinueWith(_ => { throw new Exception("Should not run"); });
+            task.ContinueWith(_ => { throw new Exception("Should not run"); }, TaskScheduler.Default);
             Assert.Equal(1, value);
         }
 
