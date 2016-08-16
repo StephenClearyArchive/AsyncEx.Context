@@ -6,7 +6,7 @@ namespace Nito.AsyncEx
     /// <summary>
     /// Utility class for temporarily switching <see cref="SynchronizationContext"/> implementations.
     /// </summary>
-    public struct SynchronizationContextSwitcher : IDisposable
+    public sealed class SynchronizationContextSwitcher : SingleDisposable<object>
     {
         /// <summary>
         /// The previous <see cref="SynchronizationContext"/>.
@@ -18,6 +18,7 @@ namespace Nito.AsyncEx
         /// </summary>
         /// <param name="newContext">The new <see cref="SynchronizationContext"/>.</param>
         public SynchronizationContextSwitcher(SynchronizationContext newContext)
+            : base(new object())
         {
             _oldContext = SynchronizationContext.Current;
             SynchronizationContext.SetSynchronizationContext(newContext);
@@ -26,7 +27,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Restores the old <see cref="SynchronizationContext"/>.
         /// </summary>
-        public void Dispose()
+        protected override void Dispose(object context)
         {
             SynchronizationContext.SetSynchronizationContext(_oldContext);
         }
