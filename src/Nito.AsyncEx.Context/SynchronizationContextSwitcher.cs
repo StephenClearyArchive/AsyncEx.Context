@@ -6,7 +6,7 @@ namespace Nito.AsyncEx
     /// <summary>
     /// Utility class for temporarily switching <see cref="SynchronizationContext"/> implementations.
     /// </summary>
-    public sealed class SynchronizationContextSwitcher : SingleDisposable<object>
+    public sealed class SynchronizationContextSwitcher : Disposables.SingleDisposable<object>
     {
         /// <summary>
         /// The previous <see cref="SynchronizationContext"/>.

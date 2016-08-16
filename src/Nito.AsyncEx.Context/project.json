@@ -1,9 +1,9 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "authors": [ "Stephen Cleary" ],
   "description": "A single-threaded async-compatible context.",
   "dependencies": {
-    "Nito.AsyncEx.Tasks": "1.0.0"
+    "Nito.AsyncEx.Tasks": "1.0.1"
   },
   "buildOptions": {
     "warningsAsErrors": true,
