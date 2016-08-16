@@ -127,6 +127,9 @@ namespace Nito.AsyncEx
         /// <param name="action">The action to execute. May not be <c>null</c>.</param>
         public static void Run(Action action)
         {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
             using (var context = new AsyncContext())
             {
                 var task = context._taskFactory.Run(action);
@@ -142,6 +145,9 @@ namespace Nito.AsyncEx
         /// <param name="action">The action to execute. May not be <c>null</c>.</param>
         public static TResult Run<TResult>(Func<TResult> action)
         {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
             using (var context = new AsyncContext())
             {
                 var task = context._taskFactory.Run(action);
@@ -156,6 +162,9 @@ namespace Nito.AsyncEx
         /// <param name="action">The action to execute. May not be <c>null</c>.</param>
         public static void Run(Func<Task> action)
         {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
             // ReSharper disable AccessToDisposedClosure
             using (var context = new AsyncContext())
             {
@@ -178,6 +187,9 @@ namespace Nito.AsyncEx
         /// <param name="action">The action to execute. May not be <c>null</c>.</param>
         public static TResult Run<TResult>(Func<Task<TResult>> action)
         {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+
             // ReSharper disable AccessToDisposedClosure
             using (var context = new AsyncContext())
             {
