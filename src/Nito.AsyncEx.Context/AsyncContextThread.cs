@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Nito.AsyncEx.Synchronous;
 
 namespace Nito.AsyncEx
 {
@@ -9,7 +10,7 @@ namespace Nito.AsyncEx
     /// A thread that executes actions within an <see cref="AsyncContext"/>.
     /// </summary>
     [DebuggerTypeProxy(typeof(DebugView))]
-    public sealed class AsyncContextThread : IDisposable
+    public sealed class AsyncContextThread : Disposables.SingleDisposable<AsyncContext>
     {
         /// <summary>
         /// The child thread.
@@ -17,38 +18,44 @@ namespace Nito.AsyncEx
         private readonly Task _thread;
 
         /// <summary>
-        /// The asynchronous context executed by the child thread.
+        /// Creates a new <see cref="AsyncContext"/> and increments its operation count.
         /// </summary>
-        private readonly AsyncContext _context;
+        private static AsyncContext CreateAsyncContext()
+        {
+            var result = new AsyncContext();
+            result.SynchronizationContext.OperationStarted();
+            return result;
+        }
 
         /// <summary>
-        /// A flag used to ensure we only call <see cref="AsyncContext.OperationCompleted"/> once during complex join/dispose operations.
+        /// Initializes a new instance of the <see cref="AsyncContextThread"/> class, creating a child thread waiting for commands.
         /// </summary>
-        private int _stoppingFlag;
+        /// <param name="context">The context for this thread.</param>
+        private AsyncContextThread(AsyncContext context)
+            : base(context)
+        {
+            Context = context;
+            _thread = Task.Factory.StartNew(Execute, CancellationToken.None, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncContextThread"/> class, creating a child thread waiting for commands.
         /// </summary>
         public AsyncContextThread()
+            : this(CreateAsyncContext())
         {
-            _context = new AsyncContext();
-            _context.SynchronizationContext.OperationStarted();
-            _thread = Task.Factory.StartNew(Execute, CancellationToken.None, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
         }
 
         /// <summary>
         /// Gets the <see cref="AsyncContext"/> executed by this thread.
         /// </summary>
-        public AsyncContext Context
-        {
-            get { return _context; }
-        }
+        public AsyncContext Context { get; }
 
         private void Execute()
         {
-            using (_context)
+            using (Context)
             {
-                _context.Execute();
+                Context.Execute();
             }
         }
 
@@ -57,10 +64,7 @@ namespace Nito.AsyncEx
         /// </summary>
         private void AllowThreadToExit()
         {
-            if (Interlocked.CompareExchange(ref _stoppingFlag, 1, 0) == 0)
-            {
-                _context.SynchronizationContext.OperationCompleted();
-            }
+            Context.SynchronizationContext.OperationCompleted();
         }
 
         /// <summary>
@@ -68,14 +72,22 @@ namespace Nito.AsyncEx
         /// </summary>
         public Task JoinAsync()
         {
-            AllowThreadToExit();
+            Dispose();
             return _thread;
+        }
+
+        /// <summary>
+        /// Requests the thread to exit and blocks until the thread exits. The thread will exit when all outstanding asynchronous operations complete.
+        /// </summary>
+        public void Join()
+        {
+            JoinAsync().WaitAndUnwrapException();
         }
 
         /// <summary>
         /// Requests the thread to exit.
         /// </summary>
-        public void Dispose()
+        protected override void Dispose(AsyncContext context)
         {
             AllowThreadToExit();
         }
@@ -83,10 +95,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Gets the <see cref="TaskFactory"/> for this thread, which can be used to schedule work to this thread.
         /// </summary>
-        public TaskFactory Factory
-        {
-            get { return _context.Factory; }
-        }
+        public TaskFactory Factory => Context.Factory;
 
         [DebuggerNonUserCode]
         internal sealed class DebugView
@@ -98,15 +107,9 @@ namespace Nito.AsyncEx
                 _thread = thread;
             }
 
-            public AsyncContext Context
-            {
-                get { return _thread.Context; }
-            }
+            public AsyncContext Context => _thread.Context;
 
-            public object Thread
-            {
-                get { return _thread._thread; }
-            }
+            public object Thread => _thread._thread;
         }
     }
 }

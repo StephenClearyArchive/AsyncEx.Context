@@ -56,10 +56,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Gets a semi-unique identifier for this asynchronous context. This is the same identifier as the context's <see cref="TaskScheduler"/>.
         /// </summary>
-        public int Id
-        {
-            get { return _taskScheduler.Id; }
-        }
+        public int Id => _taskScheduler.Id;
 
         /// <summary>
         /// Increments the outstanding asynchronous operation count.
