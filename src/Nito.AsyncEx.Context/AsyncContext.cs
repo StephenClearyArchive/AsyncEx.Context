@@ -223,28 +223,19 @@ namespace Nito.AsyncEx
         /// Gets the <see cref="SynchronizationContext"/> for this <see cref="AsyncContext"/>. From inside <see cref="Execute"/>, this value is always equal to <see cref="System.Threading.SynchronizationContext.Current"/>.
         /// </summary>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public SynchronizationContext SynchronizationContext
-        {
-            get { return _synchronizationContext; }
-        }
+        public SynchronizationContext SynchronizationContext => _synchronizationContext;
 
         /// <summary>
         /// Gets the <see cref="TaskScheduler"/> for this <see cref="AsyncContext"/>. From inside <see cref="Execute"/>, this value is always equal to <see cref="TaskScheduler.Current"/>.
         /// </summary>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public TaskScheduler Scheduler
-        {
-            get { return _taskScheduler; }
-        }
+        public TaskScheduler Scheduler => _taskScheduler;
 
         /// <summary>
         /// Gets the <see cref="TaskFactory"/> for this <see cref="AsyncContext"/>. Note that this factory has the <see cref="TaskCreationOptions.HideScheduler"/> option set. Be careful with async delegates; you may need to call <see cref="M:System.Threading.SynchronizationContext.OperationStarted"/> and <see cref="M:System.Threading.SynchronizationContext.OperationCompleted"/> to prevent early termination of this <see cref="AsyncContext"/>.
         /// </summary>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public TaskFactory Factory
-        {
-            get { return _taskFactory; }
-        }
+        public TaskFactory Factory => _taskFactory;
 
         [DebuggerNonUserCode]
         internal sealed class DebugView
@@ -256,10 +247,7 @@ namespace Nito.AsyncEx
                 _context = context;
             }
 
-            public TaskScheduler TaskScheduler
-            {
-                get { return _context._taskScheduler; }
-            }
+            public TaskScheduler TaskScheduler => _context._taskScheduler;
         }
     }
 }
