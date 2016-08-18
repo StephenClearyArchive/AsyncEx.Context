@@ -84,7 +84,7 @@ namespace Nito.AsyncEx
         private void Enqueue(Task task, bool propagateExceptions)
         {
             OperationStarted();
-            task.ContinueWith(_ => OperationCompleted(), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            task.ContinueWith(_ => OperationCompleted(), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, _taskScheduler);
             _queue.TryAdd(task, propagateExceptions);
 
             // If we fail to add to the queue, just drop the Task. This is the same behavior as the TaskScheduler.FromCurrentSynchronizationContext(WinFormsSynchronizationContext).
@@ -170,7 +170,7 @@ namespace Nito.AsyncEx
                 {
                     context.OperationCompleted();
                     t.WaitAndUnwrapException();
-                }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, context._taskScheduler);
                 context.Execute();
                 task.WaitAndUnwrapException();
             }
@@ -195,7 +195,7 @@ namespace Nito.AsyncEx
                 {
                     context.OperationCompleted();
                     return t.WaitAndUnwrapException();
-                }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, context._taskScheduler);
                 context.Execute();
                 return task.WaitAndUnwrapException();
             }
