@@ -1,4 +1,4 @@
-# AsyncEx.Context [![AppVeyor](https://img.shields.io/appveyor/ci/StephenCleary/AsyncEx-Context.svg?style=plastic)](https://ci.appveyor.com/project/StephenCleary/AsyncEx-Context) [![Coveralls](https://img.shields.io/coveralls/StephenCleary/AsyncEx.Context.svg?style=plastic)](https://coveralls.io/r/StephenCleary/AsyncEx.Context)
+# AsyncEx.Context
 
 A single-threaded asynchronous context.
 
